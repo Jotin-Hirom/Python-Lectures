@@ -4,6 +4,10 @@ The function should:
 - Return the probability of rolling a six  
 Example Input: [1, 6, 3, 6, 2, 6, 4, 5, 6, 1] 
 Expected Output: 0.4 (4 sixes out of 10 rolls) '''
+from matplotlib import pyplot as plt
+import numpy as np
+
+
 def calculate_six_probability(ListData,findThis):
     NewDataList = {}
     if type(findThis) != int:
@@ -66,17 +70,11 @@ Write a function to calculate the probability that
     a person has the disease given a positive test result using Bayes' Theorem. 
 Expected Output: ~0.087 (8.7%)
 Formula: P(A/B) = (P(B/A).P(A))/P(B) '''
-def calculate_disease_probability(prior_prob, sensitivity, specificity):  
-    notHavingDiseasePopulation = 1 - prior_prob
-    print(notHavingDiseasePopulation)
-    notAccurateSpecificityValue = 1 - specificity
-    probOfSickPersonPositive = sensitivity * prior_prob
-    probOfHealthyPersonPositive = notAccurateSpecificityValue + notHavingDiseasePopulation
-    #P(total)  = P(yes) + P(no)
-    totalProbOfTestPositive = probOfSickPersonPositive + probOfHealthyPersonPositive
-    probResult = (sensitivity * prior_prob)/totalProbOfTestPositive
-    return (probResult)
-
+def calculate_disease_probability(prior_prob, sensitivity, specificity): 
+    false_positive_rate = 1 - specificity
+    numerator = sensitivity * prior_prob
+    denominator = (sensitivity * prior_prob) + (false_positive_rate * (1 - prior_prob))
+    return (numerator / denominator) 
 
 '''Write a function that:  
 1. Generates 1000 random numbers following a normal distribution  
@@ -86,8 +84,18 @@ Expected Output:
 - A probability value close to 0.68 (theoretical value)  
 - A histogram showing the normal distribution
 '''
-
-
+def analyze_normal_distribution(sample_size=1000):  
+    data = np.random.normal(loc=0, scale=1, size=sample_size)
+    mean, std = np.mean(data), np.std(data)
+    within_one_std = np.sum((mean - std <= data) & (data <= mean + std)) / sample_size
+    
+    plt.hist(data, bins=30, density=True, alpha=0.6, color='b')
+    plt.title('Normal Distribution Histogram')
+    plt.xlabel('X->Value')
+    plt.ylabel('Y->Frequency')
+    plt.show()
+    
+    return within_one_std
 
 
 
@@ -96,7 +104,7 @@ if __name__ == "__main__" :
     '''<<--Data Declaration Here-->>'''
     findThis = 6
     sensitivity = 95/100
-    specificity = 90/100
+    specificity = (90/100)
     prior_prob = 1/100
     
     ListData = [1, 6, 3, 6, 2, 6, 4, 5, 6, 1] 
@@ -111,10 +119,28 @@ if __name__ == "__main__" :
     jointProbResult = calculate_weather_joint_probability(rain_data,cloud_data)
     passingProbResult = calculate_passing_probability(studied,passed)
     diseaseResult = calculate_disease_probability(prior_prob, sensitivity, specificity)
+    within_one_std = analyze_normal_distribution()
     
     
     '''<<--Print Here-->>'''
-    # print(f"The probability of rolling a six on a die based on experimental data is {sixProbResult}.")
-    # print(f"{jointProbResult}")
-    # print(f"{passingProbResult}")
-    print(f"{round(diseaseResult),2} ({diseaseResult * 100})")
+    print(f"The probability of rolling a six on a die based on experimental data is {sixProbResult}.")
+    print(f"{jointProbResult}")
+    print(f"{passingProbResult}")
+    print(f"{diseaseResult} ({diseaseResult * 100})")
+    print(f"A probability value close to {within_one_std}")
+    
+    
+    
+    
+    
+    
+    
+'''
+OUTPUT:
+PS D:\Pattern Recognisation Lab> python -u "d:\Pattern Recognisation Lab\Feb_Lab\2\A2.py"
+The probability of rolling a six on a die based on experimental data is 0.4.
+0.375 (3 days out of 8 were both rainy and cloudy)
+0.83 (5 passed out of 6 who studied)
+0.08755760368663597 (8.755760368663596)
+A probability value close to 0.681
+'''
